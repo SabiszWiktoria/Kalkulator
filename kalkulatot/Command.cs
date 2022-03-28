@@ -10,9 +10,26 @@ namespace kalkulatot
 {
     public class Command
     {
+       // private readonly IOutput _output;
         public HelpPl helpPl = new HelpPl();
         public HelpEn helpEn = new HelpEn();
-        public CalculationArguments Key = new CalculationArguments();
+        private ComandsARG comandsARG;
+        private ComandsARGS comandsARGS;
+        private readonly IOutput _output;
+        private CalculationArguments _calculationArguments;
+        private Calculation _calculation;
+
+     
+        private readonly ArgumentsOutput _displayInConsole;
+        public Command(IOutput output,CalculationArguments calculationArguments,Calculation calculation)
+            {
+            _calculation = calculation;
+            _calculationArguments = calculationArguments;
+            _output = output;
+            comandsARG = new ComandsARG(_output, _calculationArguments, _calculation);
+            comandsARGS = new ComandsARGS(_output, _calculationArguments, _calculation);
+            _displayInConsole = new ArgumentsOutput(_output, _calculationArguments,_calculation);
+        }
         public void ShowHelp(string language)
         {
             if (language == "pl")
@@ -39,50 +56,8 @@ namespace kalkulatot
             }
         }
 
-        public double Equation(string UserInput)
-        {
-            string[] inputParts = UserInput.Split(" ");
-            var charsToRemove = inputParts[0].Length;
-            string equation = UserInput.Remove(0, charsToRemove);
-            Expression e = new Expression(equation, Key.Arguments.Values.ToArray());
-            Console.WriteLine(e.calculate());
-            return e.calculate();
-        }
-
-        public void ArgsHander(string[] inputParts)
-        {
-            if (inputParts[1].ToLower() == "show")
-            {
-                Key.ShowAllArguments();
-                return;
-            }
-            if (inputParts[1].ToLower() == "clear")
-            {
-                Key.RemoveAllvalues();
-                return;
-            }
-            if (inputParts.Length > 1)
-            {
-                if (inputParts[2].ToLower() == "clear")
-                {
-                    Key.RemoveOnlyValue(inputParts[1]);
-                    return;
-                }
-            }
-        }
-        public void ArgHander(string[] inputParts)
-        {
-            if (inputParts.Length > 2)
-            {
-                Key.Create(inputParts[1], inputParts[1] + " = " + inputParts[inputParts.Length - 1]);
-                return;
-            }
-            else
-            {
-                Key.ShowArgument(inputParts[1]);
-                return;
-            }
-        }
+        
+      
         public void ProcessCommand(string UserInput)
         {
             string[] inputParts = UserInput.Split(" ");
@@ -92,15 +67,15 @@ namespace kalkulatot
             }
             if (inputParts[0].ToLower() == "args")
             {
-                ArgsHander(inputParts);
+                comandsARGS.SelectingCommandARGS(inputParts);
             }
-            if (Key.Arguments.ContainsKey(UserInput))
+            if (_calculationArguments.GetArgumetn().ContainsKey(UserInput))
             {
-                Key.ShowArgument(UserInput);
+                _displayInConsole.DisplayArgument(UserInput);
             }
             if (inputParts[0].ToLower() == "arg")
             {
-                ArgHander(inputParts);
+                comandsARG.SelectingCommandARG(inputParts);
             }
             if (inputParts[0].ToLower() == "clear")
             {
@@ -108,14 +83,14 @@ namespace kalkulatot
             }
             if (inputParts[0].ToLower() == "calc" || inputParts[0] == "=")
             {
-                Equation(UserInput);
+                _displayInConsole.DisplayEquation(UserInput);
                 return;
             }
             if (inputParts.Length > 1)
             {
                 if (inputParts[1] == "=")
                 {
-                    Key.Create(inputParts[0], inputParts[0] + "  " + inputParts[1] + " " + inputParts[inputParts.Length - 1]);
+                    _calculationArguments.Create(inputParts[0], inputParts[0] + "  " + inputParts[1] + " " + inputParts[inputParts.Length - 1]);
                     return;
                 }
             }

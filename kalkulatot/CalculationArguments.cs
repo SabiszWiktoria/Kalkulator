@@ -1,4 +1,5 @@
-﻿using org.mariuszgromada.math.mxparser;
+﻿using kalkulatot;
+using org.mariuszgromada.math.mxparser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,53 +7,58 @@ using System.Text;
 
 namespace kalkulatot
 {
- public   class CalculationArguments
+   
+}
+
+public class CalculationArguments
+{
+ 
+    private Dictionary<string, Argument> _arguments = new Dictionary<string, Argument>();
+   
+
+    public Dictionary<string,Argument> GetArgumetn()
     {
-         public Dictionary<string, Argument> Arguments = new Dictionary<string, Argument>();
-        public double GetValue(string key)
-        {
-            var argument = Arguments[key];
-            return argument.getArgumentValue();
-        }
+        return _arguments;
+    }
+    public double GetValue(string key)
+    {
+        var argument = _arguments[key];
+        return argument.getArgumentValue();
+    }
 
-        public void Create(string name, string value)
+    public void Create(string name, string value)
+    {
+        _arguments[name] = new Argument(value);
+        
+    }
+    public string Get(string name)
+    {
+        if (!_arguments.ContainsKey(name))
         {
-            if (Arguments.ContainsKey(name))
-            {
-                Arguments.Remove(name);
-                Arguments.Add(name, new Argument(value));
-            }
-            else
-            {
-                Arguments.Add(name, new Argument(value));
-            }
-           
-           
+            throw new KeyNotFoundException("Could not find key: " + name);
+        }
+        string displayValue = name + " = " + _arguments[name].getArgumentValue();
+        return displayValue;
+      
+    }
+    public List<Argument> GetAll()
+    {
+        List<Argument> e = _arguments.Values.ToList();
+        return e;
+       
+    }
+    public void RemoveAll()
+    {
+        _arguments.Clear();       
+    }
+    public void Remove(string key)
+    {
+        _arguments.Remove(key);
+    }
 
-        }
-        public void ShowArgument(string name)
-        {
-            Console.WriteLine(name + " = " + Arguments[name].getArgumentValue());
-        }
-        public void ShowAllArguments()
-        {
-            List<Argument> e = Arguments.Values.ToList();
-
-            for (int i = 0; i < e.Count; i++)
-            {
-                Console.WriteLine(e[i].getArgumentValue());
-            }
-        }
-        public void RemoveAllvalues()
-        {
-            foreach (var item in Arguments)
-            {
-                Arguments.Remove(item.Key);
-            }
-        }
-        public void RemoveOnlyValue(string key)
-        {
-            Arguments.Remove(key);
-        }
+    public Argument[] ToArray()
+    {
+        return _arguments.Values.ToArray();
     }
 }
+
